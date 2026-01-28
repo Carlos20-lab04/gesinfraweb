@@ -85,8 +85,8 @@ class Matricula(models.Model):
 class Calificacion(models.Model):
     TIPO_EVALUACION = [
         ('actividad', 'Actividad/Tarea (70%)'),
-        ('proyecto', 'Proyecto Final (30%)'),
-        ('examen', 'Examen (30%)'),
+        ('proyecto', 'Proyecto Final (10%)'),
+        ('examen', 'Examen (20%)'),
     ]
 
     TRIMESTRES = [
