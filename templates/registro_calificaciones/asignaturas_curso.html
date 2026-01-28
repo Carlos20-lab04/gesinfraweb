@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Materias de {{ curso.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-primary fw-bold mb-0">
+                <i class="bi bi-journal-bookmark-fill"></i> Gestión de Materias
+            </h2>
+            <p class="text-muted fs-5">{{ curso.nombre }} | Año Lectivo: {{ curso.año_lectivo }}</p>
+        </div>
+        <a href="{% url 'registro_calificaciones:lista_cursos' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Cursos
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Nueva Materia</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nombre de la Asignatura</label>
+                            {{ form.nombre }}
+                            <div class="form-text">Ej: Matemáticas, Inglés, Física...</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Profesor Encargado</label>
+                            {{ form.profesor }}
+                            <div class="form-text text-warning">
+                                <i class="bi bi-info-circle"></i> Opcional (si no eliges, se usará el del curso).
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-2">
+                            <i class="bi bi-save"></i> Guardar Materia
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>Materias Registradas</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Nombre de la Materia</th>
+                                    <th>Profesor</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asig in asignaturas %}
+                                <tr>
+                                    <td class="ps-4 fw-bold text-dark">{{ asig.nombre }}</td>
+                                    <td>
+                                        {% if asig.profesor %}
+                                            <span class="badge bg-info text-dark">
+                                                <i class="bi bi-person"></i> {{ asig.profesor.usuario.get_full_name }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-light text-muted border">Usa Prof. del Curso</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <form method="post" style="display:inline;" onsubmit="return confirm('¿Seguro que deseas eliminar esta materia?');">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="asignatura_id" value="{{ asig.id }}">
+                                            <button type="submit" name="eliminar_asignatura" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-5">
+                                        <div class="text-muted">
+                                            <i class="bi bi-folder-x fs-1"></i>
+                                            <p class="mt-2">No hay materias creadas para este curso todavía.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

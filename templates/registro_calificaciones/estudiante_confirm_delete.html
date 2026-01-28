@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">¿Estás seguro de que deseas eliminar al siguiente estudiante?</p>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Atención:</strong> Esta acción no se puede deshacer.
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Nombre:</dt>
+                        <dd class="col-sm-8">{{ estudiante.usuario.first_name }} {{ estudiante.usuario.last_name }}</dd>
+
+                        <dt class="col-sm-4">Cédula:</dt>
+                        <dd class="col-sm-8">{{ estudiante.cedula }}</dd>
+
+                        <dt class="col-sm-4">Código:</dt>
+                        <dd class="col-sm-8">{{ estudiante.codigo_estudiante }}</dd>
+                    </dl>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'registro_calificaciones:lista_estudiantes' %}" class="btn btn-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-danger">Sí, eliminar estudiante</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

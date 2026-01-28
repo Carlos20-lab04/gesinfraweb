@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-form" style="max-width: 800px; margin: 40px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center; color: #2c3e50; border-bottom: 3px solid #0066ff; padding-bottom: 10px;">🌐 Configuración de Red</h2>
+
+    {% if form.errors %}
+    <div style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <strong>⚠️ Errores encontrados:</strong>
+        <ul style="margin-top: 5px;">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Nombre de la Red:</label>
+                {{ form.nombre_red }}
+            </div>
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Tipo de Red:</label>
+                {{ form.tipo_red }}
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Dirección IP:</label>
+                {{ form.direccion_ip }}
+                <small style="color: #666;">Ej: 192.168.1.0</small>
+            </div>
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Máscara de Subred:</label>
+                {{ form.mascara_subred }}
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Puerta de Enlace (Gateway):</label>
+                {{ form.gateway }}
+            </div>
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Servidor DNS:</label>
+                {{ form.dns }}
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Ubicación:</label>
+                {{ form.ubicacion }}
+            </div>
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Estado de la Red:</label>
+                {{ form.estado }}
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 15px;">
+            <button type="submit" style="background-color: #0066ff; color: white; padding: 12px 35px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;"> Guardar Red</button>
+            <a href="{% url 'inventario_equipos:lista_redes' %}" style="background-color: #95a5a6; color: white; padding: 12px 35px; text-decoration: none; border-radius: 8px; font-weight: bold;">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    input, select { width: 100%; padding: 12px; border: 1px solid #dcdde1; border-radius: 8px; box-sizing: border-box; }
+    input:focus, select:focus { border-color: #0066ff; outline: none; box-shadow: 0 0 8px rgba(0,102,255,0.1); }
+</style>
+{% endblock %}

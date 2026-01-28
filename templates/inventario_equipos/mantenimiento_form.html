@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Mantenimiento - GESINFRA-WEB{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container-form {
+        width: 100%; max-width: 700px; margin: 40px auto;
+        background: white; padding: 40px; border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    h2 {
+        color: #2c3e50; text-align: center; margin-bottom: 30px;
+        border-bottom: 3px solid #f39c12; padding-bottom: 10px;
+    }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 8px; color: #34495e; }
+    input, select, textarea {
+        width: 100%; padding: 12px; border: 1px solid #dcdde1;
+        border-radius: 8px; box-sizing: border-box;
+    }
+    input:focus { border-color: #f39c12; outline: none; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .btn-save {
+        background-color: #f39c12; color: white; padding: 12px 30px;
+        border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+    }
+    .btn-cancel {
+        background-color: #95a5a6; color: white; padding: 12px 30px;
+        text-decoration: none; border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-form">
+    <h2>🛠️ Registrar Mantenimiento</h2>
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Equipo a intervenir:</label>
+            {{ form.equipo }}
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Fecha de Inicio:</label>
+                {{ form.fecha_mantenimiento }}
+            </div>
+            <div class="form-group">
+                <label>Tipo de Servicio:</label>
+                {{ form.tipo_mantenimiento }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Descripción del Trabajo:</label>
+            {{ form.descripcion }}
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Técnico / Responsable:</label>
+                {{ form.tecnico }}
+            </div>
+            <div class="form-group">
+                <label>Estado Inicial:</label>
+                {{ form.estado }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Próxima Revisión:</label>
+                {{ form.fecha_proximo_mantenimiento }}
+            </div>
+            
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 15px; margin-top: 20px;">
+            <button type="submit" class="btn-save">Guardar Mantenimiento</button>
+            
+            <a href="{% url 'lista_mantenimientos' %}" class="btn-cancel">Cancelar</a>
+            
+        </div>
+    </form>
+</div>
+{% endblock %}

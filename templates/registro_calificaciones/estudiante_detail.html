@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil de {{ estudiante.usuario.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Información Personal</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="bi bi-person-circle" style="font-size: 4rem; color: #ccc;"></i>
+                    </div>
+                    <p><strong>Nombre:</strong> {{ estudiante.usuario.get_full_name }}</p>
+                    <p><strong>Cédula:</strong> {{ estudiante.cedula }}</p>
+                    <p><strong>Código:</strong> {{ estudiante.codigo_estudiante }}</p>
+                    <p><strong>Email:</strong> {{ estudiante.usuario.email }}</p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'registro_calificaciones:editar_estudiante' estudiante.id %}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil"></i> Editar Datos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Curso y Matrícula</h5>
+                    
+                    <div>
+                        <a href="{% url 'registro_calificaciones:matricular_estudiante_curso' estudiante.id %}" class="btn btn-light btn-sm fw-bold text-primary me-2">
+                            + Nueva Matrícula
+                        </a>
+                        <a href="{% url 'registro_calificaciones:registrar_calificacion_estudiante' estudiante.id %}" class="btn btn-warning btn-sm fw-bold text-dark">
+                            📝 Calificar
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {% if matriculas %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Curso</th>
+                                        <th>Fecha</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for mat in matriculas %}
+                                    <tr>
+                                        <td><strong>{{ mat.curso.nombre }}</strong></td>
+                                        <td>{{ mat.fecha_matricula|date:"d M Y" }}</td>
+                                        <td>
+                                            {% if mat.estado == 'activo' %}
+                                                <span class="badge bg-success">Activo</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ mat.estado }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {# Botón para imprimir boleta #}
+                                            <a href="{% url 'registro_calificaciones:imprimir_boleta' mat.id %}" class="btn btn-sm btn-outline-dark" target="_blank">
+                                                🖨️ Boleta
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning d-flex align-items-center" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <div>
+                                Este estudiante <strong>no está matriculado</strong> en ningún curso.
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <a href="{% url 'registro_calificaciones:matricular_estudiante_curso' estudiante.id %}" class="btn btn-success btn-lg">
+                                Matricular Ahora
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if calificaciones %}
+            <div class="card shadow">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">Últimas Actividades Registradas</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for cal in calificaciones %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted">{{ cal.asignatura.nombre }}</small><br>
+                                    <strong>{{ cal.get_tipo_evaluacion_display }}</strong>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">{{ cal.nota }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{% url 'registro_calificaciones:lista_estudiantes' %}" class="btn btn-secondary">
+            &larr; Volver a la Lista
+        </a>
+    </div>
+</div>
+{% endblock %}

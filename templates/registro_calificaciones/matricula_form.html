@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva Matrícula - GESINFRA-WEB{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0 fs-5">
+                        <i class="bi bi-person-lines-fill me-2"></i>Registrar Matrícula
+                    </h4>
+                </div>
+                
+                <div class="card-body p-4">
+                    
+                    {% if curso_id %}
+                    <div class="alert alert-light border d-flex justify-content-between align-items-center mb-4 shadow-sm">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle-fill text-primary fs-4 me-3"></i>
+                            <div class="lh-1">
+                                <span class="d-block fw-bold text-dark">¿Estudiante nuevo?</span>
+                                <small class="text-muted">Si no aparece en la lista, créalo aquí.</small>
+                            </div>
+                        </div>
+                        <a href="{% url 'registro_calificaciones:crear_estudiante' %}?return_curso_id={{ curso_id }}" 
+                           class="btn btn-sm btn-primary">
+                            <i class="bi bi-person-plus-fill me-1"></i> Crear
+                        </a>
+                    </div>
+                    {% endif %}
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-bold text-secondary">
+                                {{ field.label }}
+                            </label>
+                            
+                            <div class="input-group">
+                                {{ field }} 
+                            </div>
+                            
+                            {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            
+                            {% for error in field.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-save me-1"></i> Guardar Matrícula
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // Selecciona todos los inputs, selects y textareas del formulario
+    var inputs = document.querySelectorAll('form input, form select, form textarea');
+    inputs.forEach(function(input) {
+        // Si es un checkbox, usa form-check-input, si no, form-control
+        if (input.type === 'checkbox') {
+            input.classList.add('form-check-input');
+        } else {
+            input.classList.add('form-control');
+            // Agregamos soporte para select2 si decides usarlo en el futuro, o simplemente estilo standard
+            if(input.tagName === 'SELECT') {
+                input.classList.add('form-select'); 
+            }
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="card shadow-lg border-0 rounded-4" style="max-width: 500px; width: 100%;">
+        <div class="card-body p-5 text-center">
+            
+            <div class="mb-4 text-danger">
+                <i class="bi bi-exclamation-triangle-fill" style="font-size: 4rem;"></i>
+            </div>
+
+            <h2 class="fw-bold mb-3 text-dark">¿Estás seguro?</h2>
+            
+            <p class="text-secondary mb-4">
+                Estás a punto de eliminar el equipo: <br>
+                <span class="fw-bold text-dark fs-5">"{{ object }}"</span>
+                <br><br>
+                <small class="text-danger">Esta acción es permanente y no se puede deshacer.</small>
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger btn-lg rounded-pill fw-bold">
+                        <i class="bi bi-trash3-fill me-2"></i>Sí, eliminar definitivamente
+                    </button>
+                    
+                    <a href="{% url 'lista_equipos' %}" class="btn btn-light btn-lg rounded-pill fw-bold text-secondary">
+                        Cancelar y volver
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

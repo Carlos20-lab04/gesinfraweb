@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Infraestructura de Red - GESINFRA-WEB{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container-red {
+        width: 95%;
+        max-width: 1200px;
+        margin: 40px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        color: #2c3e50;
+        margin-bottom: 25px;
+        text-align: center;
+        border-bottom: 2px solid #0066ff;
+        padding-bottom: 10px;
+    }
+
+    .nav-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    /* Estilo para el botón de regresar */
+    .btn-back { background-color: #95a5a6; color: white; }
+    .btn-back:hover { background-color: #7f8c8d; }
+
+    .btn-new { background-color: #0066ff; color: white; }
+    .btn-new:hover { background-color: #0052cc; }
+
+    /* Estilo de la tabla de red */
+    .table-red {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-red th {
+        background-color: #f8f9fa;
+        color: #34495e;
+        padding: 15px;
+        text-align: left;
+        border-bottom: 2px solid #0066ff;
+    }
+
+    .table-red td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .ip-badge {
+        background-color: #eef2f7;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        color: #0066ff;
+        font-weight: bold;
+    }
+
+    .status-pill {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .status-activa { background-color: #d4edda; color: #155724; }
+    .status-inactiva { background-color: #f8d7da; color: #721c24; }
+
+    .action-links a {
+        margin-right: 10px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-red">
+    <h1>Estructura de Red e Infraestructura</h1>
+
+    <div class="nav-actions">
+        <a href="{% url 'inventario_equipos:menu_principal' %}" class="btn btn-back"> Volver al Menú</a>
+        
+        <a href="{% url 'inventario_equipos:crear_red' %}" class="btn btn-new">+ Agregar Nueva Red</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-red">
+            <thead>
+                <tr>
+                    <th>Nombre / Tipo</th>
+                    <th>Direccionamiento IP</th>
+                    <th>Gateway / DNS</th>
+                    <th>Ubicación</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for red in redes %}
+                <tr>
+                    <td>
+                        <strong>{{ red.nombre_red }}</strong><br>
+                        <small style="color: #7f8c8d;">{{ red.get_tipo_red_display }}</small>
+                    </td>
+                    <td>
+                        <span class="ip-badge">{{ red.direccion_ip }}</span><br>
+                        <small>Máscara: {{ red.mascara_subred }}</small>
+                    </td>
+                    <td>
+                        <small>GW: {{ red.gateway }}</small><br>
+                        <small>DNS: {{ red.dns }}</small>
+                    </td>
+                    <td>{{ red.ubicacion }}</td>
+                    <td>
+                        <span class="status-pill {% if red.estado == 'activa' %}status-activa{% else %}status-inactiva{% endif %}">
+                            {{ red.get_estado_display }}
+                        </span>
+                    </td>
+                    <td class="action-links">
+                        <a href="{% url 'inventario_equipos:editar_red' red.pk %}" style="color: #f39c12;">Editar</a>
+                        <a href="{% url 'inventario_equipos:eliminar_red' red.pk %}" style="color: #e74c3c;">Eliminar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #95a5a6;">
+                        No hay redes registradas en el sistema.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

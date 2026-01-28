@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    /* --- ESTILOS DE LA SÁBANA DE NOTAS --- */
+
+    /* Cabeceras Intermedias (Neutras) - Limpia el ruido visual */
+    .th-neutral {
+        background-color: #f8f9fa !important; /* Gris muy suave */
+        color: #495057 !important;            /* Texto gris oscuro */
+        font-weight: 700;
+        vertical-align: middle;
+        border: 1px solid #dee2e6;
+        font-size: 0.9rem;
+    }
+
+    /* Cabecera NOTA FINAL (Destacada) */
+    .th-final {
+        background-color: #0d6efd !important; /* Azul primario fuerte */
+        color: white !important;
+        vertical-align: middle;
+        border: 1px solid #0a58ca;
+        font-size: 1rem;
+    }
+
+    /* Celda del Cuerpo NOTA FINAL */
+    .td-final {
+        background-color: #e7f1ff !important; /* Azul muy pálido de fondo */
+        color: #0d6efd !important;            /* Texto azul fuerte */
+        font-weight: 900 !important;          /* Extra negrita */
+        font-size: 1.1rem;
+        vertical-align: middle;
+        border: 1px solid #dee2e6;
+    }
+
+    /* Celdas numéricas generales */
+    .td-number {
+        text-align: center;
+        vertical-align: middle;
+        color: #212529;
+    }
+    
+    /* Texto gris para ponderaciones secundarias */
+    .text-muted-strong {
+        color: #6c757d !important;
+        font-weight: 600;
+    }
+
+    /* Fijar primera columna (Estudiante) al hacer scroll horizontal */
+    .sticky-col {
+        position: sticky;
+        left: 0;
+        z-index: 10;
+        background-color: #fff;
+        border-right: 2px solid #dee2e6 !important;
+    }
+    th.sticky-col {
+        background-color: #343a40 !important; /* Color oscuro del header */
+        color: white;
+        z-index: 11; /* Un poco más alto que las celdas */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-0">
+    <div class="card-header text-white px-4 py-3" style="background-color: #0066ff;">
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="bi bi-grid-3x3-gap-fill me-2"></i>Gestión de Notas</h3>
+            <span class="badge bg-light text-primary fs-6">Curso: {{ curso.nombre }}</span>
+        </div>
+    </div>
+
+    <div class="card-body p-4">
+        
+        <div class="alert alert-light border mb-4 shadow-sm">
+            <form method="get" class="row align-items-center">
+                <div class="col-md-8 d-flex align-items-end gap-3">
+                    <div class="flex-grow-1">
+                        <label class="fw-bold text-muted mb-2"><i class="bi bi-book me-1"></i> Selecciona la Asignatura:</label>
+                        <select name="asignatura" class="form-select border-primary" onchange="this.form.submit()">
+                            <option value="">--- Elegir materia ---</option>
+                            {% for asig in asignaturas %}
+                                <option value="{{ asig.id }}" {% if asignatura_seleccionada.id == asig.id %}selected{% endif %}>
+                                    {{ asig.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {% if asignatura_seleccionada %}
+                    <a href="{% url 'registro_calificaciones:imprimir_sabana_asignatura' curso.id asignatura_seleccionada.id %}" 
+                       target="_blank" 
+                       class="btn btn-success mb-0 shadow-sm"
+                       title="Generar PDF para imprimir">
+                        <i class="bi bi-printer-fill me-1"></i> Imprimir Reporte
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 text-end pt-4">
+                    <a href="{% url 'registro_calificaciones:lista_cursos' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver a Cursos
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        {% if asignatura_seleccionada %}
+
+            <div class="card mb-4 border-info shadow-sm" style="border-left: 5px solid #0dcaf0;">
+                <div class="card-body bg-light">
+                    <h5 class="card-title text-info mb-3">
+                        <i class="bi bi-sliders me-2"></i>Configuración del 30% Final
+                    </h5>
+                    <form method="POST" class="row align-items-center">
+                        {% csrf_token %}
+                        <input type="hidden" name="asignatura_id_hidden" value="{{ asignatura_seleccionada.id }}">
+                        
+                        <div class="col-md-8">
+                            <div class="d-flex gap-4">
+                                <div class="form-check form-switch">
+                                    {{ form_conf.incluir_examen }} <label class="form-check-label fw-bold text-dark" for="{{ form_conf.incluir_examen.id_for_label }}">
+                                        Incluir Examen
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    {{ form_conf.incluir_proyecto }} <label class="form-check-label fw-bold text-dark" for="{{ form_conf.incluir_proyecto.id_for_label }}">
+                                        Incluir Proyecto
+                                    </label>
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-info-circle-fill"></i> 
+                                Si activas ambos: <strong>20% Examen + 10% Proyecto</strong>. Si activas uno solo: vale el <strong>30%</strong>.
+                            </small>
+                        </div>
+
+                        <div class="col-md-4 text-end">
+                            <button type="submit" name="conf_promedio" class="btn btn-primary">
+                                <i class="bi bi-calculator me-1"></i> Recalcular Promedios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="table-responsive shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                <table class="table table-bordered table-hover mb-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="sticky-col py-3 ps-3" style="min-width: 250px;">Estudiante</th>
+                            
+                            {% for nombre in nombres_actividades %}
+                                <th class="text-center align-middle bg-secondary text-white" style="font-size: 0.75rem; min-width: 60px;" title="{{ nombre }}">
+                                    {{ nombre|truncatechars:8 }}
+                                </th>
+                            {% empty %}
+                                <th class="text-center bg-secondary">-</th>
+                            {% endfor %}
+
+                            <th class="th-neutral text-center">Prom. Act<br><small>(70%)</small></th>
+                            <th class="th-neutral text-center">Pond.<br><small>70%</small></th>
+                            
+                            {% if form_conf.incluir_proyecto.value %}
+                                <th class="th-neutral text-center">Proy.</th>
+                            {% endif %}
+                            
+                            {% if form_conf.incluir_examen.value %}
+                                <th class="th-neutral text-center">Exam.</th>
+                            {% endif %}
+                            
+                            <th class="th-neutral text-center">Pond.<br><small>30%</small></th>
+                            
+                            <th class="th-final text-center">NOTA<br>FINAL</th>
+                            
+                            <th class="text-center align-middle">Estado</th>
+                            <th class="text-center align-middle">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fila in tabla_calificaciones %}
+                        <tr>
+                            <td class="sticky-col fw-bold text-uppercase text-secondary py-3 ps-3">
+                                {{ fila.estudiante.usuario.get_full_name }}
+                            </td>
+                            
+                            {% for nota in fila.notas_individuales %}
+                                <td class="text-center">{{ nota }}</td>
+                            {% empty %}
+                                <td class="text-center">-</td>
+                            {% endfor %}
+
+                            <td class="td-number fw-bold">{{ fila.prom_actividades }}</td>
+                            <td class="td-number text-muted-strong">{{ fila.ponderado_70 }}</td>
+                            
+                            {% if form_conf.incluir_proyecto.value %}
+                                <td class="td-number">{{ fila.valor_proyecto }}</td>
+                            {% endif %}
+                            
+                            {% if form_conf.incluir_examen.value %}
+                                <td class="td-number">{{ fila.valor_examen }}</td>
+                            {% endif %}
+                            
+                            <td class="td-number text-muted-strong">{{ fila.ponderado_30 }}</td>
+                            
+                            <td class="td-final text-center">
+                                {{ fila.nota_final }}
+                            </td>
+                            
+                            <td class="text-center">
+                                {% if fila.aprobado %}
+                                    <span class="badge bg-success rounded-pill px-3">Aprobado</span>
+                                {% else %}
+                                    <span class="badge bg-danger rounded-pill px-3">Reprobado</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                <a href="{% url 'registro_calificaciones:registrar_calificacion_estudiante' fila.estudiante.id %}?asignatura={{ asignatura_seleccionada.id }}" 
+                                   class="btn btn-sm btn-outline-primary border-0" 
+                                   title="Editar notas">
+                                    <i class="bi bi-pencil-square fs-5"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-3 text-muted small">
+                <i class="bi bi-info-circle me-1"></i> 
+                Las columnas de actividades se generan automáticamente según las notas registradas en el Trimestre 1.
+            </div>
+
+        {% else %}
+            <div class="text-center py-5 bg-light rounded border border-light shadow-sm">
+                <i class="bi bi-arrow-up-circle text-primary fs-1"></i>
+                <h4 class="mt-3 text-muted">Comienza seleccionando una materia</h4>
+                <p class="text-muted">Elige una asignatura del menú superior para ver y gestionar las calificaciones.</p>
+            </div>
+        {% endif %}
+
+    </div> 
+</div> 
+{% endblock %}

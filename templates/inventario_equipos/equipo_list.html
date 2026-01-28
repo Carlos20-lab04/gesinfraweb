@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventario de Equipos - GESINFRA-WEB{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Contenedor Principal */
+    .container-inventory {
+        width: 95%;
+        max-width: 1200px;
+        margin: 40px auto;
+        background: white; 
+        padding: 30px; 
+        border-radius: 12px; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+    }
+
+    h1 { 
+        color: #2c3e50; 
+        margin-bottom: 25px; 
+        text-align: center;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+    }
+
+    /* Mensajes de éxito */
+    .messages { 
+        padding: 12px; 
+        background-color: #d4edda; 
+        color: #155724; 
+        border-radius: 6px;
+        margin-bottom: 20px; 
+        text-align: center;
+        list-style: none;
+    }
+
+    /* --- SECCIÓN ALERTA DE MANTENIMIENTO --- */
+    .maintenance-alert {
+        background-color: #fff9e6; 
+        border-left: 5px solid #f39c12; 
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    .maintenance-alert h3 {
+        margin-top: 0;
+        color: #d68910;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .table-mini {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        margin-top: 10px;
+    }
+    .table-mini th {
+        text-align: left;
+        color: #7f8c8d;
+        border-bottom: 1px solid #f39c12;
+        padding: 8px;
+    }
+    .table-mini td {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+    }
+
+    /* --- BARRA DE ACCIONES SUPERIOR --- */
+    .nav-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .btn { 
+        padding: 10px 20px; 
+        text-decoration: none; 
+        border-radius: 6px; 
+        font-weight: bold; 
+        font-size: 14px;
+        transition: 0.3s;
+        display: inline-block;
+    }
+
+    .btn-home { background-color: #95a5a6; color: white; }
+    .btn-home:hover { background-color: #7f8c8d; }
+
+    .btn-new { background-color: #3498db; color: white; }
+    .btn-new:hover { background-color: #2980b9; }
+
+    /* --- TABLA PRINCIPAL --- */
+    .table-responsive {
+        overflow-x: auto;
+    }
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-top: 10px;
+    }
+    th { 
+        background-color: #f8f9fa; 
+        color: #34495e; 
+        padding: 15px; 
+        text-align: left; 
+        border-bottom: 2px solid #3498db;
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+    td { 
+        padding: 15px; 
+        border-bottom: 1px solid #eee; 
+        color: #555;
+        font-size: 14px;
+    }
+    tr:hover { background-color: #fcfdfd; }
+
+    .badge-responsable {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    .status-dot {
+        height: 10px;
+        width: 10px;
+        background-color: #2ecc71;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    .status-maintenance {
+        background-color: #f39c12;
+    }
+
+    /* Acciones */
+    .action-links a {
+        text-decoration: none;
+        font-weight: bold;
+        margin-right: 15px;
+        font-size: 13px;
+    }
+
+    .edit-link { color: #f39c12; }
+    .delete-link { color: #e74c3c; }
+    .edit-link:hover, .delete-link:hover { text-decoration: underline; }
+
+    .empty-msg { text-align: center; padding: 40px; color: #bdc3c7; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-inventory">
+    <h1>Inventario de Equipos</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if equipos_mantenimiento %}
+    <div class="maintenance-alert">
+        <h3>⚠️ Equipos actualmente en Mantenimiento</h3>
+        <table class="table-mini">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Equipo</th>
+                    <th>Responsable</th>
+                    <th>Ubicación</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for eq in equipos_mantenimiento %}
+                <tr>
+                    <td><strong>{{ eq.codigo_inventario }}</strong></td>
+                    <td>{{ eq.marca }} {{ eq.modelo }}</td>
+                    <td>👤 {{ eq.responsable|default:"Sin asignar" }}</td>
+                    <td>{{ eq.ubicacion }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="nav-actions">
+        <a href="{% url 'menu_principal' %}" class="btn btn-home">Volver al Menú</a>
+        
+        <a href="{% url 'crear_equipo' %}" class="btn btn-new">
+            + Registrar Nuevo Equipo
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 8%;">ID</th>
+                    <th style="width: 30%;">Descripción del Equipo</th>
+                    <th style="width: 25%;">Responsable</th>
+                    <th style="width: 15%;">Estado</th>
+                    <th style="width: 22%;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipo in equipos %}
+                <tr>
+                    <td><strong>#{{ equipo.id }}</strong></td>
+                    <td>{{ equipo.tipo_equipo|title }} {{ equipo.marca }} {{ equipo.modelo }}</td>
+                    <td class="badge-responsable">
+                        👤 {{ equipo.responsable|default:"Sin asignar" }}
+                    </td>
+                    <td>
+                        <span class="status-dot {% if equipo.estado == 'mantenimiento' %}status-maintenance{% endif %}"></span> 
+                        {{ equipo.get_estado_display }}
+                    </td>
+                    <td class="action-links">
+                        <a href="{% url 'editar_equipo' equipo.pk %}" class="edit-link">Editar</a>
+                        <a href="{% url 'eliminar_equipo' equipo.pk %}" class="delete-link">Eliminar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-msg">No se han encontrado equipos en la base de datos.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

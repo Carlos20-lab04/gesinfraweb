@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}Editar Estudiante{% else %}Crear Estudiante{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    {% if form.instance.pk %}
+                        Editar Estudiante
+                    {% else %}
+                        Registrar Nuevo Estudiante
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            Por favor corrige los errores abajo indicados.
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <table class="table table-borderless">
+                            {{ form.as_table }}
+                        </table>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/registro/cursos/" class="btn btn-secondary me-md-2">Cancelar</a>
+                        
+                        <button type="submit" class="btn btn-success">
+                            {% if form.instance.pk %}Actualizar{% else %}Guardar{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boleta: {{ estudiante.usuario.last_name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --azul-proyecto: #0066ff;
+        }
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .hoja-a4 {
+            background-color: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 30px auto;
+            padding: 25mm;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            border-top: 8px solid var(--azul-proyecto);
+        }
+        .header-colegio {
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header-colegio h1 {
+            color: var(--azul-proyecto);
+            font-size: 28px;
+            text-transform: uppercase;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+        .info-box {
+            background-color: #f8faff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--azul-proyecto);
+            font-size: 0.95rem;
+        }
+        /* Estilos de Tabla */
+        .table-notas thead th {
+            background-color: var(--azul-proyecto) !important;
+            color: white !important;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            padding: 12px 5px;
+        }
+        /* Corrección Columna Final (Sin bloque negro) */
+        .col-final-header {
+            background-color: #0046b3 !important; /* Un azul más oscuro para resaltar */
+            color: white !important;
+        }
+        
+        .estado-aprobado { color: #198754 !important; font-weight: bold; }
+        .estado-reprobado { color: #dc3545 !important; font-weight: bold; }
+
+        .firma-box { margin-top: 80px; text-align: center; }
+        .linea-firma { border-top: 1.5px solid #333; width: 250px; margin: 0 auto; padding-top: 8px; }
+        
+        .btn-flotantes {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Configuración de Impresión (Limpia para el Editor) */
+        @media print {
+            body { background-color: white; margin: 0; }
+            .hoja-a4 { width: 100%; margin: 0; padding: 15mm; box-shadow: none; border-top: none; }
+            .btn-flotantes { display: none !important; }
+            
+            /* Esto soluciona el subrayado y asegura color en PDF */
+            thead th {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+        @page { margin: 1cm; size: A4; }
+    </style>
+</head>
+<body>
+
+    <div class="btn-flotantes">
+        <button onclick="window.print()" class="btn btn-primary btn-lg shadow-sm" style="background-color: var(--azul-proyecto);">
+            <i class="bi bi-printer"></i> Imprimir / Guardar PDF
+        </button>
+        <button onclick="cerrarBoleta()" class="btn btn-dark btn-lg shadow-sm">
+            <i class="bi bi-x-circle"></i> Cerrar
+        </button>
+    </div>
+
+    <div class="hoja-a4">
+        <div class="header-colegio">
+            <h1>UNIDAD EDUCATIVA "MI COLEGIO"</h1>
+            <p class="mb-0 text-muted fw-bold">Informe de Rendimiento Académico Individual</p>
+            <p class="small text-secondary">Periodo Lectivo: {{ curso.año_lectivo|default:"2025-2026" }}</p>
+        </div>
+
+        <div class="row info-box mb-4 mx-0">
+            <div class="col-7">
+                <p class="mb-1"><strong><i class="bi bi-person"></i> Estudiante:</strong> {{ estudiante.usuario.get_full_name }}</p>
+                <p class="mb-1"><strong><i class="bi bi-card-text"></i> Cédula:</strong> {{ estudiante.cedula }}</p>
+                <p class="mb-1"><strong><i class="bi bi-hash"></i> Matrícula N°:</strong> {{ matricula.id|stringformat:"05d" }}</p>
+            </div>
+            <div class="col-5 text-end border-start">
+                <p class="mb-1"><strong>Curso:</strong> {{ curso.nombre }}</p>
+                <p class="mb-1"><strong>Fecha de Emisión:</strong> {{ fecha|date:"d/m/Y" }}</p>
+            </div>
+        </div>
+
+        <h6 class="mt-4 mb-3 text-uppercase fw-bold text-secondary">
+            <i class="bi bi-file-earmark-ruled"></i> Resumen de Calificaciones
+        </h6>
+
+        <table class="table table-bordered align-middle table-notas">
+            <thead class="text-center">
+                <tr>
+                    <th style="width: 25%;">Asignatura</th>
+                    <th style="width: 20%;">Profesor</th>
+                    <th>Actividades (70%)</th>
+                    <th>Proyecto</th>
+                    <th>Examen</th>
+                    <th class="col-final-header">Final</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody class="small">
+                {% for item in boleta_items %}
+                <tr class="text-center">
+                    <td class="text-start fw-bold">{{ item.asignatura }}</td>
+                    <td class="text-start">
+                        {% if item.profesor %}
+                            {{ item.profesor.usuario.get_full_name }}
+                        {% else %}
+                            <span class="text-muted small">Docente Encargado</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.prom_actividades|floatformat:2 }}</td>
+                    <td>{{ item.nota_proyecto|floatformat:2 }}</td>
+                    <td>{{ item.nota_examen|floatformat:2 }}</td>
+                    <td class="fw-bold fs-6" style="background-color: #f0f7ff;">{{ item.nota_final|floatformat:2 }}</td>
+                    <td>
+                        {% if item.nota_final >= 7 %}
+                            <span class="estado-aprobado small">APROBADO</span>
+                        {% else %}
+                            <span class="estado-reprobado small">REPROBADO</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center py-4">No hay calificaciones registradas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="row justify-content-end mt-4">
+            <div class="col-5">
+                <div class="card border-2 {% if promedio_general >= 7 %}border-success{% else %}border-danger{% endif %}">
+                    <div class="card-body py-2 text-center">
+                        <p class="mb-0 text-muted small text-uppercase fw-bold">Promedio General</p>
+                        <h3 class="mb-0 fw-bold {% if promedio_general >= 7 %}text-success{% else %}text-danger{% endif %}">
+                            {{ promedio_general|floatformat:2 }} / 10
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="firma-box">
+            <div class="linea-firma"></div>
+            <p class="mb-0 fw-bold">
+                {% if curso.profesor %}
+                    Prof. {{ curso.profesor.usuario.get_full_name }}
+                {% else %}
+                    (Firma Autorizada)
+                {% endif %}
+            </p>
+            <p class="text-muted small mb-0">Docente Tutor / Rectorado</p>
+        </div>
+    </div>
+
+    <script>
+        function cerrarBoleta() {
+            // Si la ventana se abrió con target="_blank"
+            if (window.opener || window.history.length === 1) {
+                window.close();
+            } else {
+                // Si se abrió en la misma pestaña
+                window.history.back();
+            }
+        }
+    </script>
+</body>
+</html>

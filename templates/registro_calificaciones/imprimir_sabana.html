@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Notas - {{ asignatura.nombre }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* CONFIGURACIÓN DE IMPRESIÓN */
+        @media print {
+            @page { 
+                size: A4 landscape; /* IMPORTANTE: Hoja horizontal para que quepan las columnas */
+                margin: 1cm; 
+            }
+            body { 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+            }
+            .no-print { display: none !important; }
+        }
+
+        body { font-family: 'Arial', sans-serif; font-size: 12px; }
+        
+        /* Encabezado */
+        .header-title { font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
+        
+        /* Tabla */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 6px 4px; text-align: center; }
+        
+        /* Estilos específicos de columnas */
+        th { background-color: #f0f0f0; font-weight: bold; font-size: 11px; }
+        .col-estudiante { text-align: left; padding-left: 8px; white-space: nowrap; }
+        .col-final { background-color: #e6e6e6; font-weight: bold; }
+        .col-actividad { font-size: 10px; width: 40px; } /* Columnas estrechas para actividades */
+        
+        /* Líneas divisorias gruesas */
+        .border-left-bold { border-left: 2px solid #000 !important; }
+    </style>
+</head>
+<body class="p-4">
+
+    <div class="no-print mb-4 d-flex gap-2">
+        <button onclick="window.close()" class="btn btn-secondary btn-sm">Cerrar</button>
+        <button onclick="window.print()" class="btn btn-primary btn-sm">Imprimir / Guardar PDF</button>
+    </div>
+
+    <div class="text-center mb-4">
+        <h4 class="header-title">UNIDAD EDUCATIVA / INSTITUCIÓN</h4>
+        <h6 class="mb-3">Sábana de Calificaciones Parciales</h6>
+    </div>
+
+    <div class="row mb-3 border p-2 mx-0">
+        <div class="col-6">
+            <strong>Curso:</strong> {{ curso.nombre }} <br>
+            <strong>Asignatura:</strong> {{ asignatura.nombre }}
+        </div>
+        <div class="col-6 text-end">
+            <strong>Docente:</strong> {{ profesor }} <br>
+            <strong>Fecha:</strong> {{ fecha_impresion|date:"d/m/Y" }}
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 30px;">#</th>
+                <th class="col-estudiante" style="width: 250px;">Apellidos y Nombres</th>
+                
+                {% for nombre in nombres_actividades %}
+                    <th class="col-actividad">
+                        {{ nombre|truncatechars:6 }} </th>
+                {% endfor %}
+
+                <th class="border-left-bold">Prom.<br>Act (70%)</th>
+                <th>Puntaje<br>70%</th>
+                <th>Proy.</th>
+                <th>Exam.</th>
+                <th>Puntaje<br>30%</th>
+                <th class="col-final">NOTA<br>FINAL</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fila in tabla_calificaciones %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td class="col-estudiante text-uppercase">{{ fila.estudiante.usuario.last_name }} {{ fila.estudiante.usuario.first_name }}</td>
+                
+                {% for nota in fila.notas_individuales %}
+                    <td>{{ nota }}</td>
+                {% endfor %}
+
+                <td class="border-left-bold">{{ fila.prom_actividades }}</td>
+                <td>{{ fila.ponderado_70 }}</td>
+                <td>{{ fila.valor_proyecto }}</td>
+                <td>{{ fila.valor_examen }}</td>
+                <td>{{ fila.ponderado_30 }}</td>
+                <td class="col-final">{{ fila.nota_final }}</td>
+                
+                <td style="font-size: 11px;">
+                    {% if fila.aprobado %}Aprobado{% else %}Reprobado{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="row mt-5 pt-5">
+        <div class="col-6 text-center">
+            <div style="border-top: 1px solid #000; width: 60%; margin: 0 auto;"></div>
+            <p class="mt-2">Docente</p>
+        </div>
+        <div class="col-6 text-center">
+            <div style="border-top: 1px solid #000; width: 60%; margin: 0 auto;"></div>
+            <p class="mt-2">Secretaría<br><small>Sello y Firma</small></p>
+        </div>
+    </div>
+
+</body>
+</html>

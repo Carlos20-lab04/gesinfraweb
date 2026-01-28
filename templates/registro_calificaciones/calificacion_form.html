@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Calificación{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> {{ titulo }}
+                    </h5>
+                    {% if subtitulo %}
+                        <small>{{ subtitulo }}</small>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">Asignatura</label>
+                                {{ form.asignatura }}
+                                {% if form.asignatura.errors %}<div class="text-danger small">{{ form.asignatura.errors }}</div>{% endif %}
+                                <div class="form-text">Solo aparecen las materias del curso del estudiante.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Trimestre</label>
+                                {{ form.periodo_academico }} 
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-7">
+                                <label class="form-label fw-bold">Nombre de la Actividad</label>
+                                {{ form.nombre_actividad }}
+                                <div class="form-text">Ej: "Lección Sumas", "Maqueta Solar" (Opcional)</div>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">Tipo de Nota</label>
+                                {{ form.tipo_evaluacion }}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Calificación (0 - 10)</label>
+                                {{ form.nota }}
+                                {% if form.nota.errors %}
+                                    <div class="text-danger small">{{ form.nota.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Observaciones (Opcional)</label>
+                                {{ form.observaciones }}
+                            </div>
+                        </div>
+
+                        {# Campos ocultos #}
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            {% if matricula and asignatura_preseleccionada %}
+                                <a href="{% url 'registro_calificaciones:gestionar_notas_curso' matricula.curso.id %}?asignatura={{ asignatura_preseleccionada }}" 
+                                   class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Volver a la Sábana
+                                </a>
+                            {% elif matricula %}
+                                <a href="{% url 'registro_calificaciones:gestionar_notas_curso' matricula.curso.id %}" 
+                                   class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Volver a la Sábana
+                                </a>
+                            {% else %}
+                                <button type="button" class="btn btn-secondary" onclick="history.back()">
+                                    <i class="bi bi-arrow-left"></i> Volver
+                                </button>
+                            {% endif %}
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Guardar Nota
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-white p-0">
+                    <ul class="nav nav-tabs nav-fill" id="misTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold py-3" id="t1-tab" data-bs-toggle="tab" data-bs-target="#t1" type="button" role="tab">
+                                Trimestre 1
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold py-3" id="t2-tab" data-bs-toggle="tab" data-bs-target="#t2" type="button" role="tab">
+                                Trimestre 2
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold py-3" id="t3-tab" data-bs-toggle="tab" data-bs-target="#t3" type="button" role="tab">
+                                Trimestre 3
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-body bg-light">
+                    <div class="tab-content" id="misTabsContent">
+
+                        <div class="tab-pane fade show active" id="t1" role="tabpanel">
+                            {% if resumen_trimestres.T1 %}
+                                {% for item in resumen_trimestres.T1 %}
+                                    <div class="card mb-4 border-primary shadow-sm">
+                                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">{{ item.asignatura.nombre }}</h5>
+                                            <span class="badge bg-white text-primary">Promedio Final: {{ item.promedio_final }}</span>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <table class="table table-striped mb-0 align-middle">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Fecha</th>
+                                                        <th>Actividad</th>
+                                                        <th>Tipo</th>
+                                                        <th>Nota</th>
+                                                        <th class="text-center">Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for nota in item.notas %}
+                                                    <tr>
+                                                        <td>{{ nota.fecha_registro|date:"d/m" }}</td>
+                                                        <td>{{ nota.nombre_actividad|default:"-" }}</td>
+                                                        <td>
+                                                            {% if nota.tipo_evaluacion == 'actividad' %}
+                                                                <span class="badge bg-info text-dark">Actividad</span>
+                                                            {% else %}
+                                                                <span class="badge bg-warning text-dark">Examen/Proy</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="fw-bold">{{ nota.nota }}</td>
+                                                        <td class="text-center">
+                                                            <a href="{% url 'registro_calificaciones:editar_calificacion' nota.id %}" class="btn btn-sm btn-outline-primary me-1" title="Editar">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                            <a href="{% url 'registro_calificaciones:eliminar_calificacion' nota.id %}" 
+                                                               class="btn btn-sm btn-outline-danger" 
+                                                               title="Eliminar"
+                                                               onclick="return confirm('¿Estás seguro de que deseas eliminar esta nota? Esta acción no se puede deshacer.');">
+                                                                <i class="bi bi-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-light text-center">No hay notas registradas en el Trimestre 1.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="tab-pane fade" id="t2" role="tabpanel">
+                            {% if resumen_trimestres.T2 %}
+                                {% for item in resumen_trimestres.T2 %}
+                                    <div class="card mb-4 border-success shadow-sm">
+                                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">{{ item.asignatura.nombre }}</h5>
+                                            <span class="badge bg-white text-success">Promedio Final: {{ item.promedio_final }}</span>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <table class="table table-striped mb-0 align-middle">
+                                                <thead class="table-light">
+                                                    <tr><th>Fecha</th><th>Actividad</th><th>Tipo</th><th>Nota</th><th class="text-center">Acciones</th></tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for nota in item.notas %}
+                                                    <tr>
+                                                        <td>{{ nota.fecha_registro|date:"d/m" }}</td>
+                                                        <td>{{ nota.nombre_actividad|default:"-" }}</td>
+                                                        <td>
+                                                            {% if nota.tipo_evaluacion == 'actividad' %}
+                                                                <span class="badge bg-info text-dark">Actividad</span>
+                                                            {% else %}
+                                                                <span class="badge bg-warning text-dark">Examen/Proy</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="fw-bold">{{ nota.nota }}</td>
+                                                        <td class="text-center">
+                                                            <a href="{% url 'registro_calificaciones:editar_calificacion' nota.id %}" class="btn btn-sm btn-outline-primary me-1" title="Editar">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                            <a href="{% url 'registro_calificaciones:eliminar_calificacion' nota.id %}" 
+                                                               class="btn btn-sm btn-outline-danger" 
+                                                               title="Eliminar"
+                                                               onclick="return confirm('¿Estás seguro de que deseas eliminar esta nota? Esta acción no se puede deshacer.');">
+                                                                <i class="bi bi-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-light text-center">No hay notas registradas en el Trimestre 2.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="tab-pane fade" id="t3" role="tabpanel">
+                            {% if resumen_trimestres.T3 %}
+                                {% for item in resumen_trimestres.T3 %}
+                                    <div class="card mb-4 border-warning shadow-sm">
+                                        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">{{ item.asignatura.nombre }}</h5>
+                                            <span class="badge bg-white text-dark">Promedio Final: {{ item.promedio_final }}</span>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <table class="table table-striped mb-0 align-middle">
+                                                <thead class="table-light">
+                                                    <tr><th>Fecha</th><th>Actividad</th><th>Tipo</th><th>Nota</th><th class="text-center">Acciones</th></tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for nota in item.notas %}
+                                                    <tr>
+                                                        <td>{{ nota.fecha_registro|date:"d/m" }}</td>
+                                                        <td>{{ nota.nombre_actividad|default:"-" }}</td>
+                                                        <td>
+                                                            {% if nota.tipo_evaluacion == 'actividad' %}
+                                                                <span class="badge bg-info text-dark">Actividad</span>
+                                                            {% else %}
+                                                                <span class="badge bg-warning text-dark">Examen/Proy</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="fw-bold">{{ nota.nota }}</td>
+                                                        <td class="text-center">
+                                                            <a href="{% url 'registro_calificaciones:editar_calificacion' nota.id %}" class="btn btn-sm btn-outline-primary me-1" title="Editar">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                            <a href="{% url 'registro_calificaciones:eliminar_calificacion' nota.id %}" 
+                                                               class="btn btn-sm btn-outline-danger" 
+                                                               title="Eliminar"
+                                                               onclick="return confirm('¿Estás seguro de que deseas eliminar esta nota? Esta acción no se puede deshacer.');">
+                                                                <i class="bi bi-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-light text-center">No hay notas registradas en el Trimestre 3.</div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

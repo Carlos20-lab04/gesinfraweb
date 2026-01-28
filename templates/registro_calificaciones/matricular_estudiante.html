@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Matricular Estudiante{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Matricular a: {{ estudiante.usuario.first_name }} {{ estudiante.usuario.last_name }}</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Cédula:</strong> {{ estudiante.cedula }}</p>
+                    <p><strong>Código:</strong> {{ estudiante.codigo_estudiante }}</p>
+                    <hr>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {# Mostramos el formulario #}
+                        {# Nota: El campo 'estudiante' suele estar oculto en esta vista porque ya sabemos quién es #}
+                        {% for field in form %}
+                            {% if field.name != 'estudiante' %}
+                                <div class="mb-3">
+                                    <label class="form-label">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger small">{{ field.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                {{ field.as_hidden }}
+                            {% endif %}
+                        {% endfor %}
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'registro_calificaciones:lista_estudiantes' %}" class="btn btn-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-success">Confirmar Matrícula</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

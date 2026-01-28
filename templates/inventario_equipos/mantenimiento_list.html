@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Lista de Mantenimientos - GESINFRA-WEB{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container-maint {
+        width: 95%;
+        max-width: 1200px;
+        margin: 40px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    h1 {
+        color: #2c3e50;
+        text-align: center;
+        border-bottom: 2px solid #f39c12;
+        padding-bottom: 10px;
+        margin-bottom: 25px;
+    }
+    .nav-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .btn {
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .btn-back { background-color: #95a5a6; color: white; }
+    .btn-new { background-color: #f39c12; color: white; }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th {
+        background-color: #f8f9fa;
+        padding: 15px;
+        text-align: left;
+        border-bottom: 2px solid #f39c12;
+    }
+    td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    /* Estilos para los estados */
+    .status-pill {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .status-pendiente { background-color: #fff3cd; color: #856404; }
+    .status-completado { background-color: #d4edda; color: #155724; }
+    .status-en-proceso { background-color: #d1ecf1; color: #0c5460; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-maint">
+    <h1>Gestión de Mantenimientos</h1>
+
+    <div class="nav-actions">
+        <a href="{% url 'menu_principal' %}" class="btn btn-back"> Volver al Menú</a>
+        <a href="{% url 'crear_mantenimiento' %}" class="btn btn-new">+ Registrar Mantenimiento</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Equipo</th>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Técnico</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mantenimiento in mantenimientos %}
+            <tr>
+                <td><strong>{{ mantenimiento.equipo }}</strong></td>
+                <td>{{ mantenimiento.fecha_mantenimiento|date:"d/m/Y" }}</td>
+                <td>{{ mantenimiento.get_tipo_mantenimiento_display }}</td>
+                
+                <td>👤 {{ mantenimiento.tecnico|default:"Sin asignar" }}</td>
+                
+                <td>
+                    <span class="status-pill 
+                        {% if mantenimiento.estado == 'completado' %}status-completado
+                        {% elif mantenimiento.estado == 'pendiente' %}status-pendiente
+                        {% else %}status-en-proceso{% endif %}">
+                        {{ mantenimiento.get_estado_display }}
+                    </span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 30px; color: #95a5a6;">
+                    No hay registros de mantenimiento disponibles.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

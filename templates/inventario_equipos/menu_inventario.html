@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión Tecnológica - GESINFRA{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos para este menú de inventario */
+    
+    .menu-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .menu-header h2 {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 2.2rem;
+    }
+
+    .menu-header p {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+
+    /* Tarjetas de opciones */
+    .option-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 30px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        text-decoration: none; /* Quitar subrayado del enlace */
+        color: inherit;
+    }
+
+    .option-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 102, 255, 0.15);
+        border-color: #0066ff;
+        text-decoration: none;
+    }
+
+    /* Iconos grandes */
+    .icon-circle {
+        width: 80px;
+        height: 80px;
+        background-color: #f0f7ff; /* Fondo azul muy claro */
+        color: #0066ff; /* Azul corporativo */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        font-size: 2.5rem;
+        transition: all 0.3s;
+    }
+
+    .option-card:hover .icon-circle {
+        background-color: #0066ff;
+        color: white;
+    }
+
+    .option-card h4 {
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .option-card p {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 20px;
+    }
+
+    /* Botón "Acceder" dentro de la tarjeta */
+    .btn-card {
+        background-color: #0066ff;
+        color: white;
+        border: none;
+        padding: 8px 25px;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: background 0.2s;
+        width: 100%;
+        max-width: 150px;
+    }
+
+    .option-card:hover .btn-card {
+        background-color: #0052cc;
+    }
+
+    /* Botón Volver */
+    .btn-back {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+        transition: background 0.3s;
+    }
+
+    .btn-back:hover {
+        background-color: #5a6268;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <a href="{% url 'home' %}" class="btn-back shadow-sm">
+        <i class="bi bi-arrow-left me-2"></i> Volver al Menú Principal
+    </a>
+</div>
+
+<div class="menu-header">
+    <h2>Módulo de Gestión Tecnológica</h2>
+    <p>Seleccione el área que desea administrar</p>
+</div>
+
+<div class="row justify-content-center g-4">
+    
+    <div class="col-md-4 col-lg-3">
+        <a href="{% url 'lista_equipos' %}" class="option-card">
+            <div class="icon-circle">
+                <i class="bi bi-laptop"></i>
+            </div>
+            <h4>Inventario</h4>
+            <p>Gestión de hardware y equipos.</p>
+            <button class="btn-card">Acceder</button>
+        </a>
+    </div>
+
+    <div class="col-md-4 col-lg-3">
+        <a href="{% url 'lista_mantenimientos' %}" class="option-card">
+            <div class="icon-circle">
+                <i class="bi bi-tools"></i>
+            </div>
+            <h4>Mantenimiento</h4>
+            <p>Equipos en reparación y soporte.</p>
+            <button class="btn-card">Acceder</button>
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

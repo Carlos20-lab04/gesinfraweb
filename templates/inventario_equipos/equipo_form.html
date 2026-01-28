@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-form" style="max-width: 800px; margin: 40px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center; color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px;">💻 Información del Equipo</h2>
+    
+    {% if form.errors %}
+    <div style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <strong>Por favor, corrige los siguientes errores:</strong>
+        {{ form.errors }}
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Marca:</label>
+                {{ form.marca }}
+            </div>
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Modelo:</label>
+                {{ form.modelo }}
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Tipo de Equipo:</label>
+                {{ form.tipo_equipo }}
+            </div>
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Estado Actual:</label>
+                {{ form.estado }}
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Fecha de Adquisición:</label>
+                {{ form.fecha_adquisicion }}
+            </div>
+            <div class="form-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Responsable:</label>
+                {{ form.responsable }}
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 20px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Especificaciones Técnicas / Descripción:</label>
+            {{ form.especificaciones }}
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 15px;">
+            <button type="submit" style="background-color: #2ecc71; color: white; padding: 12px 35px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+                Confirmar y Guardar
+            </button>
+            
+            <a href="{% url 'lista_equipos' %}" style="background-color: #95a5a6; color: white; padding: 12px 35px; text-decoration: none; border-radius: 8px; font-weight: bold; transition: 0.3s;">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Estilos generales para inputs */
+    input, select, textarea { 
+        width: 100%; 
+        padding: 12px; 
+        border: 1px solid #dcdde1; 
+        border-radius: 8px; 
+        box-sizing: border-box; 
+        font-family: inherit;
+    }
+
+    /* Efecto al seleccionar un campo */
+    input:focus, select:focus, textarea:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    }
+
+    /* Efecto hover para botones */
+    button:hover { background-color: #27ae60 !important; }
+    a:hover { background-color: #7f8c8d !important; }
+</style>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio | GESINFRA-WEB{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Efecto de elevación suave para las tarjetas */
+    .card-hover {
+        transition: all 0.3s ease-in-out;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .card-hover:hover {
+        transform: translateY(-8px); /* Se mueve hacia arriba */
+        box-shadow: 0 15px 30px rgba(0, 102, 255, 0.15) !important; /* Sombra azulada suave */
+        border-color: #0066ff;
+    }
+
+    /* Estilo del botón dentro de la tarjeta */
+    .btn-soft-primary {
+        background-color: #e6f0ff;
+        color: #0066ff;
+        font-weight: 600;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .btn-soft-primary:hover {
+        background-color: #0066ff;
+        color: white;
+    }
+    
+    .hero-box {
+        background: linear-gradient(to right, #ffffff, #f8faff);
+        border-left: 6px solid #0066ff; /* Detalle de marca a la izquierda */
+    }
+</style>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="p-5 rounded-4 shadow-sm hero-box text-center">
+            
+            <h1 class="display-4 fw-bold text-dark mb-3">
+                Bienvenido a <span style="color: #0066ff;">GESINFRA-WEB</span>
+            </h1>
+            
+            <p class="lead text-secondary fs-4" style="max-width: 800px; margin: 0 auto;">
+                Sistema de Gestión e Información Educativa <br>
+                <span class="fs-6 text-muted">(Infraestructura y Aprendizajes Inclusivos para IE)</span>
+            </p>
+
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    
+    <div class="col-md-4">
+        <div class="card h-100 p-4 shadow-sm border-0 rounded-4 card-hover text-center">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div class="mb-3 p-3 rounded-circle bg-light text-primary">
+                    <i class="bi bi-mortarboard-fill fs-1"></i>
+                </div>
+                <h3 class="card-title fw-bold mb-3">Registro de Calificaciones</h3>
+                <p class="card-text text-muted mb-4">
+                    Gestiona estudiantes, profesores, cursos y el registro académico de notas trimestrales de forma ágil.
+                </p>
+                <a href="{% url 'registro_calificaciones:lista_cursos' %}" class="btn btn-soft-primary w-100 py-2 mt-auto rounded-pill">
+                    Ir a Cursos y Notas <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 p-4 shadow-sm border-0 rounded-4 card-hover text-center">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div class="mb-3 p-3 rounded-circle bg-light text-primary">
+                    <i class="bi bi-pc-display fs-1"></i>
+                </div>
+                <h3 class="card-title fw-bold mb-3">Inventario de Equipos</h3>
+                <p class="card-text text-muted mb-4">
+                    Control total del hardware, asignación de laboratorios, redes y reportes de mantenimiento técnico.
+                </p>
+                <a href="{% url 'lista_equipos' %}" class="btn btn-soft-primary w-100 py-2 mt-auto rounded-pill">
+                    Ir a Inventario <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 p-4 shadow-sm border-0 rounded-4 card-hover text-center">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div class="mb-3 p-3 rounded-circle bg-light text-primary">
+                    <i class="bi bi-universal-access-circle fs-1"></i>
+                </div>
+                <h3 class="card-title fw-bold mb-3">Accesibilidad</h3>
+                <p class="card-text text-muted mb-4">
+                    Gestión de requisitos de accesibilidad, evaluaciones de espacios físicos y normativas de inclusión.
+                </p>
+                <a href="{% url 'menu_accesibilidad' %}" class="btn btn-soft-primary w-100 py-2 mt-auto rounded-pill">
+                    Ir a Accesibilidad <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
