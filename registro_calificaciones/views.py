@@ -24,7 +24,18 @@ from .forms import (
 @login_required
 def gestionar_notas_curso(request, curso_id):
     curso = get_object_or_404(Curso, pk=curso_id)
-    asignaturas = curso.asignaturas.all()
+    
+    # --- LÓGICA DE PERMISOS (MODIFICADO) ---
+    # Si es Admin, ve todas las materias. Si es Profe, solo las suyas.
+    if request.user.is_superuser:
+        asignaturas = curso.asignaturas.all()
+    else:
+        try:
+            profe_actual = Profesor.objects.get(usuario=request.user)
+            asignaturas = curso.asignaturas.filter(profesor=profe_actual)
+        except Profesor.DoesNotExist:
+            asignaturas = Asignatura.objects.none()
+    # ---------------------------------------
     
     asignatura_id = request.GET.get('asignatura')
     asignatura_seleccionada = None
@@ -46,8 +57,12 @@ def gestionar_notas_curso(request, curso_id):
             asignatura_id = request.POST.get('asignatura_id_hidden')
 
     if asignatura_id:
-        asignatura_seleccionada = get_object_or_404(Asignatura, pk=asignatura_id)
-        
+        # Validamos que la asignatura pertenezca a las permitidas
+        if request.user.is_superuser:
+             asignatura_seleccionada = get_object_or_404(Asignatura, pk=asignatura_id)
+        else:
+             asignatura_seleccionada = get_object_or_404(Asignatura, pk=asignatura_id, profesor__usuario=request.user)
+
         # Obtener nombres de actividades únicos para las columnas (T1)
         nombres_actividades = Calificacion.objects.filter(
             asignatura=asignatura_seleccionada,
@@ -448,7 +463,15 @@ def registrar_calificacion_estudiante(request, estudiante_id):
 
         form = CalificacionForm(initial=initial_data)
         if matricula:
-            form.fields['asignatura'].queryset = Asignatura.objects.filter(curso=matricula.curso)
+            # --- FILTRO EN EL DESPLEGABLE ---
+            qs = Asignatura.objects.filter(curso=matricula.curso)
+            if not request.user.is_superuser:
+                 try:
+                     profe_actual = Profesor.objects.get(usuario=request.user)
+                     qs = qs.filter(profesor=profe_actual)
+                 except Profesor.DoesNotExist:
+                     qs = Asignatura.objects.none()
+            form.fields['asignatura'].queryset = qs
     
     resumen_trimestres = {'T1': [], 'T2': [], 'T3': []}
     if matricula:
@@ -506,7 +529,15 @@ def editar_calificacion(request, pk):
             return redirect(f"{base_url}?asignatura={asignatura_id}")
     else:
         form = CalificacionForm(instance=calificacion)
-        form.fields['asignatura'].queryset = Asignatura.objects.filter(curso=calificacion.matricula.curso)
+        # --- FILTRO EN EL DESPLEGABLE (Edición) ---
+        qs = Asignatura.objects.filter(curso=calificacion.matricula.curso)
+        if not request.user.is_superuser:
+            try:
+                profe_actual = Profesor.objects.get(usuario=request.user)
+                qs = qs.filter(profesor=profe_actual)
+            except Profesor.DoesNotExist:
+                qs = Asignatura.objects.none()
+        form.fields['asignatura'].queryset = qs
     
     return render(request, 'registro_calificaciones/calificacion_form.html', {
         'form': form,
@@ -609,9 +640,21 @@ def eliminar_profesor(request, pk):
 
 @login_required
 def lista_cursos(request):
+    # 1. Consulta Base
     cursos = Curso.objects.annotate(
         total_estudiantes=Count('matriculas', filter=Q(matriculas__estado='activo'))
     ).order_by('nombre')
+    
+    # 2. FILTRO DE SEGURIDAD PARA PROFESORES
+    if not request.user.is_superuser:
+        try:
+            profe_actual = Profesor.objects.get(usuario=request.user)
+            # Solo mostramos cursos donde el profesor dicta una asignatura
+            cursos = cursos.filter(asignaturas__profesor=profe_actual).distinct()
+        except Profesor.DoesNotExist:
+            # Si no es admin ni profesor, no ve nada
+            cursos = Curso.objects.none()
+
     return render(request, 'registro_calificaciones/curso_list.html', {'cursos': cursos})
 
 @login_required
@@ -696,7 +739,17 @@ def dashboard_calificaciones(request):
 @login_required
 def obtener_estudiantes_curso(request, curso_id):
     curso = get_object_or_404(Curso, pk=curso_id)
-    asignaturas = list(curso.asignaturas.all().values('id', 'nombre'))
+    
+    # --- FILTRO API TAMBIÉN ---
+    qs_asignaturas = curso.asignaturas.all()
+    if not request.user.is_superuser:
+        try:
+             profe = Profesor.objects.get(usuario=request.user)
+             qs_asignaturas = qs_asignaturas.filter(profesor=profe)
+        except Profesor.DoesNotExist:
+             qs_asignaturas = Asignatura.objects.none()
+    
+    asignaturas = list(qs_asignaturas.values('id', 'nombre'))
     estudiantes = [{'id': m.estudiante.id, 'nombre': str(m.estudiante)} for m in Matricula.objects.filter(curso=curso, estado='activo')]
     return JsonResponse({'estudiantes': estudiantes, 'asignaturas': asignaturas})
 
