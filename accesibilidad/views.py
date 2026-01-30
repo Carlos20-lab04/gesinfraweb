@@ -1,46 +1,80 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import EncuestaAccesibilidad
-from .forms import EncuestaForm
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count
-import json
+from .models import EncuestaAccesibilidad
+from .forms import EncuestaAccesibilidadForm
 
-def menu_accesibilidad(request):
-    return render(request, 'accesibilidad/menu_accesibilidad.html')
-
-def realizar_encuesta(request):
+# --- VISTA PARA RESPONDER LA ENCUESTA ---
+@login_required
+def responder_encuesta(request):
     if request.method == 'POST':
-        form = EncuestaForm(request.POST)
+        form = EncuestaAccesibilidadForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Encuesta guardada correctamente.')
-            return redirect('menu_accesibilidad')
-        else:
-            messages.error(request, 'Error en el formulario.')
+            encuesta = form.save(commit=False)
+            # Si quieres guardar el nombre del usuario logueado automáticamente:
+            # encuesta.nombre_encuestado = request.user.username 
+            encuesta.save()
+            messages.success(request, '¡Gracias! Tu encuesta de accesibilidad ha sido registrada.')
+            return redirect('resultados_accesibilidad')
     else:
-        form = EncuestaForm()
+        form = EncuestaAccesibilidadForm()
+    
     return render(request, 'accesibilidad/encuesta_form.html', {'form': form})
 
+# --- VISTA PARA VER LOS RESULTADOS (GRÁFICOS) ---
+@login_required
 def resultados_accesibilidad(request):
-    encuestas = EncuestaAccesibilidad.objects.all().order_by('-fecha')
+    # Lista exacta de los campos que definimos en models.py
+    campos = [
+        'q1_interfaz', 
+        'q2_capacitacion', 
+        'q3_compatibilidad', 
+        'q4_soporte',
+        'q5_instalaciones', 
+        'q6_apoyo', 
+        'q7_recursos_tec', 
+        'q8_metodologias',
+        'q9_materiales', 
+        'q10_adaptaciones', 
+        'q11_barreras', 
+        'q12_politicas',
+        'q13_capacitacion_inst', 
+        'q14_conocimiento_bap'
+    ]
+    
+    datos_graficos = []
 
-    def obtener_datos(campo):
-        conteo = EncuestaAccesibilidad.objects.values(campo).annotate(total=Count(campo))
-        labels = [item[campo] for item in conteo if item[campo]]
-        data = [item['total'] for item in conteo if item[campo]]
-        # Etiquetas legibles (opcional, convierte 'si' en 'Si' visualmente en JS)
-        return labels, data
+    for campo in campos:
+        # 1. Obtenemos la pregunta completa (verbose_name)
+        campo_obj = EncuestaAccesibilidad._meta.get_field(campo)
+        pregunta_texto = campo_obj.verbose_name
+        
+        # 2. Obtenemos el diccionario de opciones para traducir "si" -> "Sí"
+        opciones_dict = dict(campo_obj.choices)
+        
+        # 3. Contamos las respuestas en la base de datos
+        # Esto agrupa por respuesta y las cuenta. Ej: [{'q1_interfaz': 'si', 'total': 5}, ...]
+        conteo = EncuestaAccesibilidad.objects.values(campo).annotate(total=Count(campo)).order_by()
+        
+        labels = []
+        data = []
+        
+        for item in conteo:
+            valor_bd = item[campo]  # El valor guardado (ej: "obstaculo")
+            if valor_bd: # Evitar vacíos
+                # Traducimos el valor BD al texto legible usando el diccionario
+                texto_legible = opciones_dict.get(valor_bd, valor_bd)
+                
+                labels.append(texto_legible)
+                data.append(item['total'])
+        
+        # Guardamos todo el paquete de datos para este gráfico
+        datos_graficos.append({
+            'id': campo,
+            'titulo': pregunta_texto,
+            'labels': labels,
+            'data': data
+        })
 
-    l_interfaz, d_interfaz = obtener_datos('interfaz_facilita')
-    l_apoyo, d_apoyo = obtener_datos('elementos_apoyo')
-    l_barreras, d_barreras = obtener_datos('barrera_frecuente')
-    l_politicas, d_politicas = obtener_datos('politicas_claras')
-
-    context = {
-        'encuestas': encuestas,
-        'labels_interfaz': l_interfaz, 'data_interfaz': d_interfaz,
-        'labels_apoyo': l_apoyo, 'data_apoyo': d_apoyo,
-        'labels_barreras': l_barreras, 'data_barreras': d_barreras,
-        'labels_politicas': l_politicas, 'data_politicas': d_politicas,
-    }
-    return render(request, 'accesibilidad/resultados.html', context)
+    return render(request, 'accesibilidad/resultados.html', {'datos_graficos': datos_graficos})
