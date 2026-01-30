@@ -1,25 +1,31 @@
 from django import forms
 from .models import EncuestaAccesibilidad
 
-class EncuestaForm(forms.ModelForm):
+class EncuestaAccesibilidadForm(forms.ModelForm):
     class Meta:
         model = EncuestaAccesibilidad
         fields = '__all__'
-        # Widgets para que se vea bonito con Bootstrap
+        
+        # Esto convierte las listas desplegables en opciones de "bolita" (Radio Buttons)
         widgets = {
-            'nombre_encuestado': forms.TextInput(attrs={'class': 'form-control'}),
-            'interfaz_facilita': forms.Select(attrs={'class': 'form-select'}),
-            'afectacion_capacitacion': forms.Select(attrs={'class': 'form-select'}),
-            'compatibilidad_equipos': forms.Select(attrs={'class': 'form-select'}),
-            'identifica_soporte': forms.Select(attrs={'class': 'form-select'}),
-            'desplazamiento_autonomo': forms.Select(attrs={'class': 'form-select'}),
-            'elementos_apoyo': forms.Select(attrs={'class': 'form-select'}),
-            'recursos_accesibles': forms.Select(attrs={'class': 'form-select'}),
-            'docentes_inclusivos': forms.Select(attrs={'class': 'form-select'}),
-            'contenidos_adaptados': forms.Select(attrs={'class': 'form-select'}),
-            'materiales_accesibles': forms.Select(attrs={'class': 'form-select'}),
-            'barrera_frecuente': forms.Select(attrs={'class': 'form-select'}),
-            'politicas_claras': forms.Select(attrs={'class': 'form-select'}),
-            'capacitacion_docente': forms.Select(attrs={'class': 'form-select'}),
-            'conocimiento_bap': forms.Select(attrs={'class': 'form-select'}),
+            'q1_interfaz': forms.RadioSelect,
+            'q2_capacitacion': forms.RadioSelect,
+            'q3_compatibilidad': forms.RadioSelect,
+            'q4_soporte': forms.RadioSelect,
+            'q5_instalaciones': forms.RadioSelect,
+            'q6_apoyo': forms.RadioSelect,
+            'q7_recursos_tec': forms.RadioSelect,
+            'q8_metodologias': forms.RadioSelect,
+            'q9_materiales': forms.RadioSelect,
+            'q10_adaptaciones': forms.RadioSelect,
+            'q11_barreras': forms.RadioSelect,
+            'q12_politicas': forms.RadioSelect,
+            'q13_capacitacion_inst': forms.RadioSelect,
+            'q14_conocimiento_bap': forms.RadioSelect,
+            
+            # Ocultamos el campo de fecha porque es automático
+            'fecha': forms.HiddenInput(),
+            
+            # Estilo para el nombre (opcional)
+            'nombre_encuestado': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tu nombre (Opcional)'}),
         }
