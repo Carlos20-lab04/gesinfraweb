@@ -1,66 +1,60 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4 mb-5">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">Encuesta de Accesibilidad</h3>
-        </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-
-                <div class="mb-4">
-                    <h5 class="text-secondary border-bottom pb-2">Datos del Participante</h5>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">{{ form.nombre_encuestado.label }}</label>
-                        {{ form.nombre_encuestado }}
-                    </div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white p-4 rounded-top-4 text-center">
+                    <h2 class="h4 mb-1"><i class="bi bi-ui-checks me-2"></i>Encuesta de Accesibilidad</h2>
+                    <p class="mb-0 small opacity-75">Tu opinión nos ayuda a eliminar barreras</p>
                 </div>
+                
+                <div class="card-body p-5">
+                    <form method="post">
+                        {% csrf_token %}
 
-                <div class="mb-4 p-3 bg-light rounded">
-                    <h5 class="text-primary border-bottom pb-2">Sección 1: Barreras Tecnológicas</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-3"><label class="form-label">{{ form.interfaz_facilita.label }}</label>{{ form.interfaz_facilita }}</div>
-                        <div class="col-md-6 mb-3"><label class="form-label">{{ form.afectacion_capacitacion.label }}</label>{{ form.afectacion_capacitacion }}</div>
-                        <div class="col-md-6 mb-3"><label class="form-label">{{ form.compatibilidad_equipos.label }}</label>{{ form.compatibilidad_equipos }}</div>
-                        <div class="col-md-6 mb-3"><label class="form-label">{{ form.identifica_soporte.label }}</label>{{ form.identifica_soporte }}</div>
-                    </div>
-                </div>
+                        <div class="mb-5">
+                            <h5 class="text-primary border-bottom pb-2 mb-3">Información General</h5>
+                            {{ form.nombre_encuestado }}
+                        </div>
 
-                <div class="mb-4 p-3 bg-light rounded">
-                    <h5 class="text-primary border-bottom pb-2">Sección 2: Infraestructura</h5>
-                    <div class="row">
-                        <div class="col-md-4 mb-3"><label class="form-label">{{ form.desplazamiento_autonomo.label }}</label>{{ form.desplazamiento_autonomo }}</div>
-                        <div class="col-md-4 mb-3"><label class="form-label">{{ form.elementos_apoyo.label }}</label>{{ form.elementos_apoyo }}</div>
-                        <div class="col-md-4 mb-3"><label class="form-label">{{ form.recursos_accesibles.label }}</label>{{ form.recursos_accesibles }}</div>
-                    </div>
-                </div>
+                        {% for field in form %}
+                            {% if field.name != 'nombre_encuestado' and field.name != 'fecha' %}
+                                <div class="mb-4 p-3 rounded-3 bg-light border-start border-4 border-info shadow-sm">
+                                    <label class="fw-bold text-dark d-block mb-3">{{ field.label }}</label>
+                                    
+                                    <div class="ms-2">
+                                        {% for radio in field %}
+                                            <div class="form-check mb-2">
+                                                {{ radio.tag }}
+                                                <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                                    {{ radio.choice_label }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
 
-                <div class="mb-4 p-3 bg-light rounded">
-                    <h5 class="text-primary border-bottom pb-2">Sección 3: Barreras Pedagógicas</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-3"><label class="form-label">{{ form.docentes_inclusivos.label }}</label>{{ form.docentes_inclusivos }}</div>
-                        <div class="col-md-6 mb-3"><label class="form-label">{{ form.contenidos_adaptados.label }}</label>{{ form.contenidos_adaptados }}</div>
-                        <div class="col-md-6 mb-3"><label class="form-label">{{ form.materiales_accesibles.label }}</label>{{ form.materiales_accesibles }}</div>
-                        <div class="col-md-6 mb-3"><label class="form-label">{{ form.barrera_frecuente.label }}</label>{{ form.barrera_frecuente }}</div>
-                    </div>
-                </div>
+                                    {% if field.errors %}
+                                        <div class="alert alert-danger mt-2 py-1 px-2 small">
+                                            {{ field.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
 
-                <div class="mb-4 p-3 bg-light rounded">
-                    <h5 class="text-primary border-bottom pb-2">Sección 4: Gestión y Políticas</h5>
-                    <div class="row">
-                        <div class="col-md-4 mb-3"><label class="form-label">{{ form.politicas_claras.label }}</label>{{ form.politicas_claras }}</div>
-                        <div class="col-md-4 mb-3"><label class="form-label">{{ form.capacitacion_docente.label }}</label>{{ form.capacitacion_docente }}</div>
-                        <div class="col-md-4 mb-3"><label class="form-label">{{ form.conocimiento_bap.label }}</label>{{ form.conocimiento_bap }}</div>
-                    </div>
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm">
+                                <i class="bi bi-send-fill me-2"></i> Enviar Respuestas
+                            </button>
+                            <a href="{% url 'resultados_accesibilidad' %}" class="btn btn-outline-secondary rounded-pill">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="text-center">
-                    <button type="submit" class="btn btn-success btn-lg px-5">Guardar Encuesta</button>
-                    <a href="{% url 'menu_accesibilidad' %}" class="btn btn-secondary btn-lg ms-2">Cancelar</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
