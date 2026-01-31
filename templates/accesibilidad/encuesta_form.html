@@ -1,60 +1,49 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg border-0 rounded-4">
-                <div class="card-header bg-primary text-white p-4 rounded-top-4 text-center">
-                    <h2 class="h4 mb-1"><i class="bi bi-ui-checks me-2"></i>Encuesta de Accesibilidad</h2>
-                    <p class="mb-0 small opacity-75">Tu opinión nos ayuda a eliminar barreras</p>
+<div class="container py-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="bi bi-ui-checks me-2"></i>Encuesta de Accesibilidad</h3>
+        </div>
+        
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-4 p-3 bg-light rounded border">
+                    <label class="fw-bold mb-2">Nombre (Opcional)</label>
+                    {{ form.nombre_encuestado }}
                 </div>
-                
-                <div class="card-body p-5">
-                    <form method="post">
-                        {% csrf_token %}
 
-                        <div class="mb-5">
-                            <h5 class="text-primary border-bottom pb-2 mb-3">Información General</h5>
-                            {{ form.nombre_encuestado }}
-                        </div>
+                {% for field in form %}
+                    {% if field.name != 'nombre_encuestado' %}
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2 d-block text-dark">
+                                {{ field.label }}
+                            </label>
+                            
+                            <div class="input-group">
+                                {{ field }}
+                            </div>
 
-                        {% for field in form %}
-                            {% if field.name != 'nombre_encuestado' and field.name != 'fecha' %}
-                                <div class="mb-4 p-3 rounded-3 bg-light border-start border-4 border-info shadow-sm">
-                                    <label class="fw-bold text-dark d-block mb-3">{{ field.label }}</label>
-                                    
-                                    <div class="ms-2">
-                                        {% for radio in field %}
-                                            <div class="form-check mb-2">
-                                                {{ radio.tag }}
-                                                <label class="form-check-label" for="{{ radio.id_for_label }}">
-                                                    {{ radio.choice_label }}
-                                                </label>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-
-                                    {% if field.errors %}
-                                        <div class="alert alert-danger mt-2 py-1 px-2 small">
-                                            {{ field.errors }}
-                                        </div>
-                                    {% endif %}
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ field.errors|striptags }}
                                 </div>
                             {% endif %}
-                        {% endfor %}
-
-                        <div class="d-grid gap-2 mt-5">
-                            <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm">
-                                <i class="bi bi-send-fill me-2"></i> Enviar Respuestas
-                            </button>
-                            <a href="{% url 'resultados_accesibilidad' %}" class="btn btn-outline-secondary rounded-pill">
-                                Cancelar
-                            </a>
                         </div>
-                    </form>
+                        <hr class="text-muted opacity-25"> 
+                    {% endif %}
+                {% endfor %}
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <a href="{% url 'resultados_accesibilidad' %}" class="btn btn-outline-secondary px-4 me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-success px-5 fw-bold">
+                        Enviar Respuestas <i class="bi bi-send-fill ms-2"></i>
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
