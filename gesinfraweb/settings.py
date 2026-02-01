@@ -12,8 +12,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-myw@hddj_g&0(4mo5rxg1y46yuz9%5-+gubarzfn1@so#@0z#w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# IMPORTANTE: En PythonAnywhere cambiaremos esto a False después
 DEBUG = True
 
+# IMPORTANTE: Aquí pondremos tu dominio de PythonAnywhere más adelante
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -90,14 +92,12 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# --- CONFIGURACIÓN DE FORMATO DE FECHA (SOLUCIÓN AL ERROR) ---
-# Esto le dice a Django que acepte el formato día/mes/año
+# --- CONFIGURACIÓN DE FORMATO DE FECHA ---
 DATE_INPUT_FORMATS = [
-    '%d/%m/%Y',  # Acepta: 27/01/2026
-    '%d-%m-%Y',  # Acepta: 27-01-2026
-    '%Y-%m-%d',  # Acepta: 2026-01-27 (Estándar)
+    '%d/%m/%Y',
+    '%d-%m-%Y',
+    '%Y-%m-%d',
 ]
-# -------------------------------------------------------------
 
 # --- CONFIGURACIÓN DE ARCHIVOS ESTÁTICOS ---
 
@@ -107,10 +107,13 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+# AGREGADO PARA PYTHONANYWHERE:
+# Esta línea es VITAL. Define dónde se recolectarán los estilos en el servidor.
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # --------------------------------------------------------
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Redirecciones de Login/Logout
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
